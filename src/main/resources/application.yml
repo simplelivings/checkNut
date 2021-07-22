@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #测试用:本地数据库
+    url: jdbc:mysql://localhost:3306/partcheck?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: false
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+
+server:
+  port: 8899
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+  tomcat:
+    connection-timeout: 18000000
+    max-connections: 30000
+    max-swallow-size: 100MB
+    resource:
+      allow-caching: false
+
+selfDefinition:
+  imagePath: D://testPic
+
+
+dap:
+  checkSchedules: 0 45 7 * * *
+  dateSchedules: 0 50 7 * * *
+  monthSchedules: 0 00 9 1,15 * *
+  monthDeleteSchedules: 0 00 10 15 * *
+  testSchedules: 10 * * * * *
+
+
+logging:
+  file:
+    name: checkNut.log
+    max-history: 3
+  level:
+    root: info

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * TODO
- *
+ * 文件监听器，管理类
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-06 14:03
@@ -17,6 +17,7 @@ public class FileMonitor {
     private String path;    //监听的文件路径
     private FileAlterationMonitor monitor;
 
+    //不能由配置文件注入
     private long defaultInterval = 1000L;  //默认监听的时间间隔
 
     public FileMonitor() {

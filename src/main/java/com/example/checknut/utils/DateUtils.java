@@ -148,4 +148,22 @@ public class DateUtils {
             return null;
         }
     }
+
+    public static String getHMS(Calendar c){
+        int h = c.get(Calendar.HOUR_OF_DAY);
+        int m = c.get(Calendar.MINUTE);
+        int s = c.get(Calendar.SECOND);
+        String hs = plusZero(h), ms= plusZero(m), ss= plusZero(s);
+        return hs + ":" + ms +":" + ss;
+    }
+
+    public static String plusZero(int n){
+        String s = "";
+        if (n < 10) {
+            s = "0" + n;
+        } else {
+            s = String.valueOf(n);
+        }
+        return s;
+    }
 }

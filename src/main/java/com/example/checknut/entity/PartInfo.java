@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * TODO
- *
+ * 零件信息，记录零件的基础信息；需提前录入数据库
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-08 14:50

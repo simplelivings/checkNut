@@ -10,6 +10,7 @@ import com.example.checknut.service.imp.BasicInfoServiceImp;
 import com.example.checknut.service.imp.CheckInfoServiceImp;
 import com.example.checknut.service.imp.PartInfoServiceImp;
 import com.example.checknut.service.imp.TotalNumServiceImp;
+import com.example.checknut.utils.DateUtils;
 import com.example.checknut.utils.SelfFileUtils;
 import com.example.checknut.utils.SerialUtils;
 import lombok.SneakyThrows;
@@ -18,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.opencv.core.Mat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,8 +29,13 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.opencv.highgui.HighGui.imshow;
+import static org.opencv.highgui.HighGui.waitKey;
+import static org.opencv.imgcodecs.Imgcodecs.imread;
+
 /**
  * TODO
+ * 监听文件夹图片变化；
  *
  * @version: 1.0
  * @author: faraway
@@ -41,9 +48,6 @@ public class FileListener implements FileAlterationListener {
     //检验产品图片存放路径，与application.yml中的数据绑定
     @Value("${selfDefinition.imagePath}")
     private String imagePath;
-
-    @Autowired
-    private static ReturnInfo returnInfo;
 
     @Autowired
     private TotalNumServiceImp totalNumServiceImp;
@@ -60,7 +64,6 @@ public class FileListener implements FileAlterationListener {
     @SneakyThrows
     @Override
     public void onStart(FileAlterationObserver fileAlterationObserver) {
-//        System.out.println("start============");
     }
 
     @Override
@@ -76,23 +79,29 @@ public class FileListener implements FileAlterationListener {
     }
 
 
+    /**
+     * 监听文件夹文件数量，达到数据库中零件图片数量时，对产品信息进行视觉处理；
+     *
+     * @param file
+     */
     @SneakyThrows
     @Override
     public void onFileCreate(File file) {
         System.out.println("==onFileCreate==");
         File file1 = new File(imagePath);
         int n = 0, checkItem = 0, photoNum = 0, checkResult = 0;
-        String partNum = "", partName = "";
+        String partNum = "", partName = "", valueUser = "";
         if (file1.exists()) {
-            File[] fileList = file1.listFiles();
+            n = SelfFileUtils.getDirectoriesNum(file1);
             //1 获取文件夹图片数量
-            n = fileList.length;
+            System.out.println("=========n==========" + n);
 
             //2 从BasicInfo数据库，取出当前零件号与检验内容
             BasicInfo basicInfo = basicInfoServiceImp.getBasicInfo();
             if (basicInfo != null) {
                 partNum = basicInfo.getPartNum();
                 checkItem = basicInfo.getCheckItem();
+                valueUser = basicInfo.getValueUser();
 
                 //3 根据零件号与检验内容，从PartInfo数据库中，取出零件图片数量
                 if (null != partNum) {
@@ -100,66 +109,63 @@ public class FileListener implements FileAlterationListener {
                     if (partInfo != null) {
                         photoNum = partInfo.getPhotoNum();
                         partName = partInfo.getPartName();
+                        Map<String, Integer> map = new HashMap<>();
 
                         //4 判断文件夹图片数量是否满足要求
                         if (n == photoNum) {
                             //5 如果满足要求，传入openCV，检查图片
-//                            checkResult = CheckHandler.process(partNum);
+                            map = CheckHandler.process(partNum);
+                            Mat mat = imread("D:\\testPic1\\nutp1.jpg", 1);
+                            System.out.println("mat" + mat);
 
-                            //测试用
-                            returnInfo = new ReturnInfo();
-                            checkResult = 1;
-                            Map<String, Integer> map = new HashMap<>();
-                            map.put("nut1", 1);
-                            map.put("nut2", 2);
-                            map.put("nut3", 2);
-                            map.put("nut4", 2);
-                            map.put("nut5", 2);
-                            map.put("nut6", 2);
-                            map.put("nut7", 2);
-                            map.put("result", 2);
+                            if (null != map) {
+                                ReturnInfo returnInfo = new ReturnInfo();
+                                checkResult = map.get("checkResult");
 
-                            int totalNum = 0, conformNum = 0, unConformNum, riskOfConfirm = 0;
-                            TotalNum totalNum1 = totalNumServiceImp.getTotalNum(partNum);
-                            if (totalNum1 != null){
-                               totalNum = totalNum1.getTotalNum() + 1;
-                               conformNum = totalNum1.getConformNum() + 1;
-                               totalNum1.setTotalNum(totalNum);
-                               totalNum1.setConformNum(conformNum);
-                               totalNumServiceImp.insertOrUpdateTotalNum(totalNum1);
-                               map.put("totalNum",totalNum);
-                               map.put("conformNum",conformNum);
-                               map.put("unConformNum",(totalNum-conformNum));
-                            }
+                                int totalNum = 0, conformNum = 0, unConformNum, riskOfConfirm = 0;
+                                TotalNum totalNum1 = totalNumServiceImp.getTotalNum(partNum);
+                                if (totalNum1 != null) {
+                                    totalNum = totalNum1.getTotalNum() + 1;
+                                    conformNum = totalNum1.getConformNum() + 1;
+                                    totalNum1.setTotalNum(totalNum);
+                                    totalNum1.setConformNum(conformNum);
+                                    totalNumServiceImp.insertOrUpdateTotalNum(totalNum1);
+                                    map.put("totalNum", totalNum);
+                                    map.put("conformNum", conformNum);
+                                    map.put("unConformNum", (totalNum - conformNum));
+                                }
 
-                            returnInfo.setNutMap(map);
+                                returnInfo.setNutMap(map);
 
-                            CheckInfo checkInfo = new CheckInfo();
-                            SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
-                            String shortDate = df1.format(new Date());
-                            checkInfo.setCheckDate(shortDate);
-                            checkInfo.setPartNum(partNum);
-                            checkInfo.setPartName(partName);
-                            checkInfo.setCheckItem(checkItem);
+                                CheckInfo checkInfo = new CheckInfo();
+                                SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
+                                String shortDate = df1.format(new Date());
+                                Calendar c = Calendar.getInstance();
+                                checkInfo.setCheckDate(shortDate)
+                                        .setPartNum(partNum)
+                                        .setPartName(partName)
+                                        .setCheckItem(checkItem)
+                                        .setValueUser(valueUser)
+                                        .setCheckTime(DateUtils.getHMS(c));
 
-                            //6 检查结果OK，向串口发出信号，将数据存入CheckInfo数据库
-                            if (checkResult > 0) {
-                                checkInfo.setCheckStatus(1);
-                                //向串口输出数据
+                                //6 检查结果OK，向串口发出信号，将数据存入CheckInfo数据库
+                                if (checkResult > 0) {
+                                    checkInfo.setCheckStatus(1);
+                                    //向串口输出数据
 //                                SerialUtils.sendDataToPort();
 
-                                //信息传送至前端
-                                WebSocketServer.sendObjectTo(returnInfo.getNutMap());
+                                    //信息传送至前端
+                                    WebSocketServer.sendObjectTo(returnInfo.getNutMap());
 
-                                log.info("=OK======检验信息写入完成=======");
-                            } else {
-                                checkInfo.setCheckStatus(2);
-                                log.info("=NO======检验信息写入完成=======");
+                                    log.info("=OK======检验信息写入完成=======");
+                                } else {
+                                    checkInfo.setCheckStatus(2);
+                                    log.info("=NO======检验信息写入完成=======");
+                                }
+                                checkInfoServiceImp.insertCheckInfo(checkInfo);
+                                //7 清空文件夹内容
+                                SelfFileUtils.delAllFile(imagePath);
                             }
-                            checkInfoServiceImp.insertCheckInfo(checkInfo);
-                            //7 清空文件夹内容
-                            SelfFileUtils.delAllFile(imagePath);
-
                         }
                     }
                 }

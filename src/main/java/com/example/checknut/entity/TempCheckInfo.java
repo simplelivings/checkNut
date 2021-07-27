@@ -23,6 +23,10 @@ public class TempCheckInfo {
 
     private String checkDate;
 
+    private String checkTime;
+
+    private String valueUser;
+
     private int checkNum;
 
     private String checkResult;

@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * TODO
- *
+ * 检验信息月度汇总
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-19 11:12
@@ -31,6 +31,8 @@ public class CheckInfoMonth {
     private Integer unConformNum;
 
     private Integer checkItem;
+
+    private String valueUser;
 
     private Integer month;
 

@@ -7,7 +7,7 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 /**
  * TODO
- *
+ * WebSocket配置类;
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-15 11:38

@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * TODO
- *
+ * 记录登录信息
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-08 15:48
@@ -30,6 +30,8 @@ public class BasicInfo {
 
     private Integer checkItem;
 
+    private String valueUser;
+
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
@@ -40,8 +42,9 @@ public class BasicInfo {
     @TableField(fill = FieldFill.INSERT)
     private Integer version;
 
-    public BasicInfo(String partNum, Integer checkItem) {
+    public BasicInfo(String partNum, Integer checkItem, String valueUser) {
         this.partNum = partNum;
         this.checkItem = checkItem;
+        this.valueUser = valueUser;
     }
 }

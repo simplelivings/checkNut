@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * TODO
- *
+ * 返回检验结果的累计信息
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-21 16:26

@@ -3,6 +3,7 @@ package com.example.checknut;
 import com.example.checknut.controller.WebSocketServer;
 import com.example.checknut.entity.ReturnInfo;
 import com.example.checknut.listener.FileMonitor;
+import com.example.checknut.utils.OpenCVUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -20,6 +21,8 @@ public class CheckNutApplication {
     private String imagePath;
 
     public static void main(String[] args) {
+        //1 连接openCV库
+        OpenCVUtils.loadOpenCV();
         SpringApplication.run(CheckNutApplication.class, args);
 
     }

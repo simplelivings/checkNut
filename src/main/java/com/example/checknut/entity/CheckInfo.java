@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * TODO
- *
+ * 记录检验信息
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-08 14:15
@@ -33,8 +33,11 @@ public class CheckInfo {
 
     private Integer checkStatus;
 
+    private String valueUser;
+
     private String checkDate;
 
+    private String checkTime;
 
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;

@@ -8,6 +8,9 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * MybatisPlus的配置类
+ */
 @Configuration
 @MapperScan("com.example.checknut.mapper")
 public class MpConfig {

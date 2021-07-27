@@ -7,6 +7,9 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 
+/**
+ * 前端查询的返回信息
+ */
 @Data
 @Accessors(chain = true)
 @AllArgsConstructor

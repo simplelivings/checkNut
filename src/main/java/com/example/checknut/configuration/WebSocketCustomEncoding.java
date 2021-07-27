@@ -10,7 +10,7 @@ import javax.websocket.EndpointConfig;
 
 /**
  * TODO
- *
+ * WebSocet发送对象的配置类
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-15 14:25

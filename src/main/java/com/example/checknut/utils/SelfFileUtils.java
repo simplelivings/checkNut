@@ -61,7 +61,21 @@ public  class SelfFileUtils {
             }
         }
         return flag;
+    }
 
+    public static int getDirectoriesNum(File file){
+        int n = 0;
+
+        if (null != file){
+           File[] files = file.listFiles();
+            for (File file1 : files) {
+                if (file1.isDirectory()){
+                    n++;
+                }
+            }
+
+        }
+        return n;
     }
 
 }

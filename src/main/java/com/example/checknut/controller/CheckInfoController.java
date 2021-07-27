@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * TODO
- *
+ * 处理前端导出与查询数据
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-20 15:35
@@ -31,6 +31,14 @@ public class CheckInfoController {
     @Autowired
     private CheckInfoServiceImp checkInfoServiceImp;
 
+    /**
+     * 处理前端导出数据需求，将数据导出至excel表
+     * @param start 开始时间
+     * @param end 结束时间
+     * @return
+     * @throws ParseException
+     * @throws IOException
+     */
 
     @GetMapping("/writeData")
     public int generateExcel(@RequestParam("startDate") String start, @RequestParam("endDate") String end) throws ParseException, IOException {
@@ -48,6 +56,13 @@ public class CheckInfoController {
         }
     }
 
+    /**
+     * 处理前端查询请求，将checkInfoReturn返回至前端；
+     * @param start 开始时间
+     * @param end 结束时间
+     * @return checkInfoReturn
+     * @throws ParseException
+     */
     @GetMapping("/getData")
     public CheckInfoReturn sendData(@RequestParam("startDate") String start, @RequestParam("endDate") String end) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -89,6 +104,8 @@ public class CheckInfoController {
                     tempCheckInfo.setPartNum(checkInfo.getPartNum())
                             .setCheckItem(checkItem)
                             .setCheckDate(checkInfo.getCheckDate())
+                            .setCheckTime(checkInfo.getCheckTime())
+                            .setValueUser(checkInfo.getValueUser())
                             .setCheckNum(1)
                             .setCheckResult(checkResult)
                             .setCheckNote("");

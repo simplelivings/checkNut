@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+/**
+ * MybatisPlus自动注入创建时间、更新时间、版本号
+ */
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
 

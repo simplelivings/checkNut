@@ -16,10 +16,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @SpringBootTest
 @Slf4j
@@ -40,40 +37,33 @@ class CheckInfoServiceImpTest {
 
 
 
-    @Test
-    public void getCheckInfoByDate() {
-        Date s = new Date();
-        Date e = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(e);
-        c.add(Calendar.MONTH,-1);
-        e = c.getTime();
-        if ((null != s) && (null != e)) {
-//            Date s = DateUtils.setHMSOfDayToZero(start);
-//            Date e = DateUtils.setHMSOfDayToZero(end);
+//    @Test
+    public List<CheckInfo> getCheckInfoByDate(Date start, Date end) {
+        if ((null != start) && (null != end)) {
             QueryWrapper<CheckInfo> queryWrapper = new QueryWrapper<>();
-            if (s.before(e)) {
-                s = DateUtils.setHMSOfDayToZero(s);
-                e = DateUtils.getEndOfDay(e);
-                queryWrapper.between("createtime", s, e);
-            } else if (s.after(e)) {
-                e = DateUtils.setHMSOfDayToZero(e);
-                s = DateUtils.getEndOfDay(s);
-                queryWrapper.between("createtime", e, s);
-            } else if (s.equals(e)) {
-                s = DateUtils.setHMSOfDayToZero(s);
-                e = DateUtils.getEndOfDay(e);
-                queryWrapper.between("createtime", s, e);
-                System.out.println("=================");
+            if (start.before(end)){
+                start = DateUtils.getEndOfLastDay(start);
+                end = DateUtils.getStartOfNextDay(end);
+                queryWrapper.between("createtime", start, end);
+            }else if (start.after(end)){
+                end= DateUtils.getEndOfLastDay(end);
+                start = DateUtils.getStartOfNextDay(start);
+                queryWrapper.between("createtime", end, start);
+            }else if (start.equals(end)){
+                start = DateUtils.getEndOfLastDay(start);
+                end = DateUtils.getStartOfNextDay(end);
+                queryWrapper.between("createtime", start, end);
             }
-            System.out.println("e=====" + e);
-            System.out.println("s=====" + s);
             List<CheckInfo> checkInfoList = new ArrayList<CheckInfo>();
             checkInfoList = checkInfoMapper.selectList(queryWrapper);
-            System.out.println("=====size====" + checkInfoList.size());
-//            return checkInfoList;
+            Set<CheckInfo> checkInfoSet = new LinkedHashSet<>();
+            if (checkInfoList != null) {
+                return checkInfoList;
+            } else {
+                return null;
+            }
         } else {
-//            return null;
+            return null;
         }
     }
 
@@ -114,7 +104,7 @@ class CheckInfoServiceImpTest {
         checkDate = c.getTime();
 
 //        assert getCheckInfoByDate(start, end) != null;
-//        checkInfoList = getCheckInfoByDate(start, end);
+        checkInfoList = getCheckInfoByDate(start, end);
 
         long beginExcel = System.currentTimeMillis();
 
@@ -191,7 +181,7 @@ class CheckInfoServiceImpTest {
 
         //EXCEL表头部分,第6行
         Row rowTitle6 = sheet.createRow(5);
-        String[] tempTitleList6 = {"序号", "零件号", "检验类型", "检验数量", "检验时间", "检验结果", "备注"};
+        String[] tempTitleList6 = {"序号", "零件号", "检验类型", "检验数量", "检验日期","检验时间","检验班组", "检验结果", "备注"};
         for (int i = 0; i < tempTitleList6.length; i++) {
             Cell cellTitle6 = rowTitle6.createCell(i);
             cellTitle6.setCellValue(tempTitleList6[i]);
@@ -251,6 +241,8 @@ class CheckInfoServiceImpTest {
                         checkTypeTemp,
                         "1",
                         tempDate,
+                        checkInfoList.get(i).getCheckTime(),
+                        checkInfoList.get(i).getValueUser(),
                         checkStatuTemp,
                         "",
                 };

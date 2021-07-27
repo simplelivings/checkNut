@@ -55,9 +55,17 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
             c.setTime(date);
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH) + 1;
+            String valueUser = "";
             List<CheckInfo> checkInfoList = checkInfoService.getCheckInfoByDate(firstDay, lastDay);
+
+            CheckInfoMonth checkInfoMonth = new CheckInfoMonth();
+            CheckInfoMonth checkInfoMonth1 = new CheckInfoMonth();
+
             //存放零件号，用于合并当月同类零件用；
             Set<String> partNumSet = new LinkedHashSet<>();
+
+            //存放班组名，用于合并当月同班组零件用；
+            Set<String> valueUerSet = new LinkedHashSet<>();
 
             if (null != checkInfoList && checkInfoList.size() > 0) {
                 for (int i = 0; i < checkInfoList.size(); i++) {
@@ -68,62 +76,74 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
                 }
             }
             for (String s : partNumSet) {
-                int conform = 0, unConform = 0,sConform = 0, sUnconform = 0;
+
                 for (int i = 0; i < checkInfoList.size(); i++) {
                     CheckInfo checkInfo = checkInfoList.get(i);
-                    if (null != checkInfo) {
-                        if (s.equals(checkInfo.getPartNum())) {
-
-                            //检验结果
-                            int n = checkInfo.getCheckStatus();
-
-                            //检验项目
-                            int m = checkInfo.getCheckItem();
-                            if (n > 0 && 1 == m) {
-                                switch (n) {
-                                    case 1:
-                                        conform++;
-                                        break;
-                                    case 2:
-                                        unConform++;
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }else if( n > 0 && 2 == m){
-                                switch (n) {
-                                    case 1:
-                                        sConform++;
-                                        break;
-                                    case 2:
-                                        sUnconform++;
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                        }
+                    if (s.equals(checkInfo.getPartNum())) {
+                        valueUerSet.add(checkInfo.getValueUser());
                     }
                 }
 
-                CheckInfoMonth checkInfoMonth = new CheckInfoMonth();
-                checkInfoMonth.setPartNum(s);
-                checkInfoMonth.setCheckItem(1);
-                checkInfoMonth.setConformNum(conform);
-                checkInfoMonth.setUnConformNum(unConform);
-                checkInfoMonth.setYear(year);
-                checkInfoMonth.setMonth(month);
-                insertOrUpdateMonthDate(checkInfoMonth);
-                if (sConform > 0 || sUnconform > 0){
-                    CheckInfoMonth checkInfoMonth1 = new CheckInfoMonth();
-                    checkInfoMonth1.setPartNum(s);
-                    checkInfoMonth1.setCheckItem(2);
-                    checkInfoMonth1.setConformNum(sConform);
-                    checkInfoMonth1.setUnConformNum(sUnconform);
-                    checkInfoMonth1.setYear(year);
-                    checkInfoMonth1.setMonth(month);
-                    insertOrUpdateMonthDate(checkInfoMonth1);
+                for (String user : valueUerSet) {
+                    int conform = 0, unConform = 0, sConform = 0, sUnconform = 0;
+                    for (int i = 0; i < checkInfoList.size(); i++) {
+                        CheckInfo checkInfo = checkInfoList.get(i);
+                        if (null != checkInfo) {
+                            if (s.equals(checkInfo.getPartNum()) && user.equals(checkInfo.getValueUser())) {
+                                //检验结果
+                                int n = checkInfo.getCheckStatus();
+
+                                //检验项目
+                                int m = checkInfo.getCheckItem();
+                                if (n > 0 && 1 == m) {
+                                    switch (n) {
+                                        case 1:
+                                            conform++;
+                                            break;
+                                        case 2:
+                                            unConform++;
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                } else if (n > 0 && 2 == m) {
+                                    switch (n) {
+                                        case 1:
+                                            sConform++;
+                                            break;
+                                        case 2:
+                                            sUnconform++;
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    checkInfoMonth.setYear(year)
+                            .setMonth(month)
+                            .setPartNum(s)
+                            .setValueUser(user)
+                            .setCheckItem(1)
+                            .setConformNum(conform)
+                            .setUnConformNum(unConform);
+                    insertOrUpdateMonthDate(checkInfoMonth);
+
+                    if (sConform > 0 || sUnconform > 0) {
+                        checkInfoMonth1.setYear(year)
+                                .setMonth(month)
+                                .setPartNum(s)
+                                .setValueUser(user)
+                                .setCheckItem(2)
+                                .setConformNum(sConform)
+                                .setUnConformNum(sUnconform);
+
+                        insertOrUpdateMonthDate(checkInfoMonth1);
+                    }
                 }
+                valueUerSet.clear();
             }
             return 1;
         } else {
@@ -133,6 +153,7 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
 
     /**
      * 根据当前日期，生成月度的汇总表；
+     *
      * @param date
      * @return
      * @throws IOException
@@ -166,10 +187,10 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
         String shortDate = df1.format(new Date());
         String fileType = "检验记录";
         String excelPath = "";
-        if (month < 10){
-            excelPath = PATH + fileType + year + "0" +month + "audit.xlsx";
-        }else {
-            excelPath = PATH + fileType + year +month + "audit.xlsx";
+        if (month < 10) {
+            excelPath = PATH + fileType + year + "0" + month + "audit.xlsx";
+        } else {
+            excelPath = PATH + fileType + year + month + "audit.xlsx";
         }
 
         long beginExcel = System.currentTimeMillis();
@@ -230,7 +251,7 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
         Cell cellTitle = rowTitle.createCell(0);
         cellTitle.setCellValue("检验记录");
         //合并单元格
-        CellRangeAddress region1 = new CellRangeAddress(1, 1, 0, 8);
+        CellRangeAddress region1 = new CellRangeAddress(1, 1, 0, 9);
         sheet.addMergedRegion(region1);
         cellTitle.setCellStyle(cellStyleTitle);
 
@@ -247,7 +268,7 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
 
         //EXCEL表头部分,第6行
         Row rowTitle6 = sheet.createRow(5);
-        String[] tempTitleList6 = {"序号", "零件号", "检验年份", "检验月份", "检验类型", "合格数量", "不合格数量","合计","备注"};
+        String[] tempTitleList6 = {"序号", "零件号", "检验年份", "检验月份", "检验班组", "检验类型", "合格数量", "不合格数量", "合计", "备注"};
         for (int i = 0; i < tempTitleList6.length; i++) {
             Cell cellTitle6 = rowTitle6.createCell(i);
             cellTitle6.setCellValue(tempTitleList6[i]);
@@ -257,6 +278,7 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
         sheet.setColumnWidth(1, 256 * 15);//设置列宽
         sheet.setColumnWidth(4, 256 * 15);
         sheet.setColumnWidth(6, 256 * 15);
+        sheet.setColumnWidth(7, 256 * 15);
 
         if (checkInfoMonthList != null && checkInfoMonthList.size() > 0) {
 
@@ -276,11 +298,11 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
                 if (null != checkInfoMonth) {
 
                     int checkItem = 0;
-                    if (null != checkInfoMonth.getCheckItem()){
+                    if (null != checkInfoMonth.getCheckItem()) {
                         checkItem = checkInfoMonth.getCheckItem();
                     }
-                    if (checkItem >= 0){
-                        switch (checkItem){
+                    if (checkItem >= 0) {
+                        switch (checkItem) {
                             case 1:
                                 checkTypeTemp = "螺母检验";
                                 break;
@@ -298,6 +320,7 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
                             checkInfoMonth.getPartNum(),
                             checkInfoMonth.getYear().toString(),
                             checkInfoMonth.getMonth().toString(),
+                            checkInfoMonth.getValueUser(),
                             checkTypeTemp,
                             "",
                             "",
@@ -305,7 +328,7 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
                             "",
                     };
 
-                    int[] tempNum = {checkInfoMonth.getConformNum(),checkInfoMonth.getUnConformNum(),totalNum};
+                    int[] tempNum = {checkInfoMonth.getConformNum(), checkInfoMonth.getUnConformNum(), totalNum};
 
                     //创建行
                     Row row = sheet.createRow(i + 6);
@@ -316,13 +339,13 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
                         cell.setCellValue(tempList[j]);
                         cell.setCellStyle(cellStyleContent);
                     }
-                    for (int j = 0; j < tempNum.length; j++){
-                        Cell cell = row.createCell(j+5);
+                    for (int j = 0; j < tempNum.length; j++) {
+                        Cell cell = row.createCell(j + 6);
                         cell.setCellValue(tempNum[j]);
                         cell.setCellStyle(cellStyleContent);
                     }
 
-                    log.info(year+"年"+month+"月"+"检验 Excel写入完成===");
+                    log.info(year + "年" + month + "月" + "检验 Excel写入完成===");
                 }
 
             }
@@ -342,7 +365,7 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
             long endExcel = System.currentTimeMillis();
             log.info("==每月excel=time===" + (double) (endExcel - beginExcel) / 1000);
             return 1;
-        }else {
+        } else {
             return 0;
         }
     }
@@ -353,8 +376,9 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
             QueryWrapper<CheckInfoMonth> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("partNum", checkInfoMonth.getPartNum())
                     .eq("month", checkInfoMonth.getMonth())
+                    .eq("valueUser", checkInfoMonth.getValueUser())
                     .eq("year", checkInfoMonth.getYear())
-                    .eq("checkItem",checkInfoMonth.getCheckItem());
+                    .eq("checkItem", checkInfoMonth.getCheckItem());
             CheckInfoMonth checkInfoMonthTemp = checkInfoMonthMapper.selectOne(queryWrapper);
             if (null != checkInfoMonthTemp) {
                 checkInfoMonthMapper.update(checkInfoMonth, queryWrapper);
@@ -370,6 +394,7 @@ public class CheckInfoMonthImp implements CheckInfoMonthService {
 
     /**
      * 获得日期所在月的，检验记录的汇总信息
+     *
      * @param date
      * @return
      */

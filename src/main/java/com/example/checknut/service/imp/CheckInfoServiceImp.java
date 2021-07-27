@@ -212,7 +212,7 @@ public class CheckInfoServiceImp implements CheckInfoService {
         Cell cellTitle = rowTitle.createCell(0);
         cellTitle.setCellValue("检验记录");
         //合并单元格
-        CellRangeAddress region1 = new CellRangeAddress(1, 1, 0, 6);
+        CellRangeAddress region1 = new CellRangeAddress(1, 1, 0, 8);
         sheet.addMergedRegion(region1);
         cellTitle.setCellStyle(cellStyleTitle);
 
@@ -229,7 +229,7 @@ public class CheckInfoServiceImp implements CheckInfoService {
 
         //EXCEL表头部分,第6行
         Row rowTitle6 = sheet.createRow(5);
-        String[] tempTitleList6 = {"序号", "零件号", "检验类型", "检验数量", "检验时间", "检验结果", "备注"};
+        String[] tempTitleList6 = {"序号", "零件号", "检验类型", "检验数量", "检验日期","检验时间","检验班组", "检验结果", "备注"};
         for (int i = 0; i < tempTitleList6.length; i++) {
             Cell cellTitle6 = rowTitle6.createCell(i);
             cellTitle6.setCellValue(tempTitleList6[i]);
@@ -238,6 +238,8 @@ public class CheckInfoServiceImp implements CheckInfoService {
 
         sheet.setColumnWidth(1, 256 * 15);//设置列宽
         sheet.setColumnWidth(4, 256 * 15);
+        sheet.setColumnWidth(5, 256 * 15);
+        sheet.setColumnWidth(6, 256 * 15);
 
         if (checkInfoList != null && checkInfoList.size() > 0) {
 
@@ -296,6 +298,8 @@ public class CheckInfoServiceImp implements CheckInfoService {
                         checkTypeTemp,
                         "1",
                         tempDate,
+                        checkInfoList.get(i).getCheckTime(),
+                        checkInfoList.get(i).getValueUser(),
                         checkStatuTemp,
                         "",
                 };
@@ -425,7 +429,7 @@ public class CheckInfoServiceImp implements CheckInfoService {
         Cell cellTitle = rowTitle.createCell(0);
         cellTitle.setCellValue("检验记录");
         //合并单元格
-        CellRangeAddress region1 = new CellRangeAddress(1, 1, 0, 6);
+        CellRangeAddress region1 = new CellRangeAddress(1, 1, 0, 8);
         sheet.addMergedRegion(region1);
         cellTitle.setCellStyle(cellStyleTitle);
 
@@ -442,7 +446,7 @@ public class CheckInfoServiceImp implements CheckInfoService {
 
         //EXCEL表头部分,第6行
         Row rowTitle6 = sheet.createRow(5);
-        String[] tempTitleList6 = {"序号", "零件号", "检验类型", "检验数量", "检验时间", "检验结果", "备注"};
+        String[] tempTitleList6 = {"序号", "零件号", "检验类型", "检验数量", "检验日期","检验时间","检验班组", "检验结果", "备注"};
         for (int i = 0; i < tempTitleList6.length; i++) {
             Cell cellTitle6 = rowTitle6.createCell(i);
             cellTitle6.setCellValue(tempTitleList6[i]);
@@ -451,6 +455,8 @@ public class CheckInfoServiceImp implements CheckInfoService {
 
         sheet.setColumnWidth(1, 256 * 15);//设置列宽
         sheet.setColumnWidth(4, 256 * 15);
+        sheet.setColumnWidth(5, 256 * 15);
+        sheet.setColumnWidth(6, 256 * 15);
 
         if (checkInfoList != null && checkInfoList.size() > 0) {
 
@@ -509,6 +515,8 @@ public class CheckInfoServiceImp implements CheckInfoService {
                         checkTypeTemp,
                         "1",
                         tempDate,
+                        checkInfoList.get(i).getCheckTime(),
+                        checkInfoList.get(i).getValueUser(),
                         checkStatuTemp,
                         "",
                 };

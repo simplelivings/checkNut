@@ -10,7 +10,7 @@ import org.springframework.context.event.EventListener;
  * @author: faraway
  * @date: 2021-07-06 13:41
  */
-@Configuration
+//@Configuration
 public class MyWebConfig {
 
     public void test(){

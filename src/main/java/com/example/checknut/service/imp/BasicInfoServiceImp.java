@@ -26,11 +26,9 @@ public class BasicInfoServiceImp implements BasicInfoService {
     private BasicInfoMapper basicInfoMapper;
 
     @Override
-    public int insertOrUpdateBasicInfo(String partNum, int checkItem) {
-        if (partNum != null && checkItem > 0){
-            BasicInfo basicInfo = new BasicInfo(partNum, checkItem);
-            basicInfo.setId(1);
-
+    public int insertOrUpdateBasicInfo(String partNum, int checkItem, String valueUser) {
+        if (partNum != null && checkItem > 0 && valueUser != null){
+            BasicInfo basicInfo = new BasicInfo(partNum, checkItem, valueUser);
             QueryWrapper<BasicInfo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("partNum",partNum);
 

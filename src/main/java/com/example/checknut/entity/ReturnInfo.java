@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * TODO
- *
+ * 返回检验结果信息
  * @version: 1.0
  * @author: faraway
  * @date: 2021-07-15 15:23
